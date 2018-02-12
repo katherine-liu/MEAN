@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="ie-edge">
+  <title>MEAN Web</title>
+</head>
+
+<body>
+  <h1>Test Website!</h1>
+  <form>
+    <input type="text" name="message" id="submit-form" value="">
+    <button>Submit</button>
+  </form>
+  <div id="message-board"></div>
+  <!-- <script src="../node_modules/jquery/dist/jquery.js" type="text/javascript"></script> -->
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="/socket.io/socket.io.js" charset="utf-8"></script>
+  <script type="text/javascript">
+    // window.onload = function() {
+    //   if (window.jQuery) {
+    //     // jQuery is loaded
+    //     alert("Yeah!");
+    //   } else {
+    //     // jQuery is not loaded
+    //     alert("Doesn't Work");
+    //   }
+    // }
+    let socket = io()
+    $('form').submit(function() {
+      socket.emit('SUBMITFORM', $('#submit-form').val())
+      $('#submit-form').val('')
+      return false
+    })
+    socket.on('FORM', function(message) {
+      $('#message-board').append($('<div>').text(message))
+    })
+  </script>
+</body>
+
+</html>
