@@ -5,6 +5,64 @@ import bodyParser from 'body-parser'
 import socketIO from 'socket.io'
 import jwt from 'jsonwebtoken'
 import fs from 'fs'
+import multer from 'multer'
+import loki from 'lokijs'
+
+const db = new loki('uploads/uploads.json', { persistenceMethod: 'fs'})
+const loadCollection = (collectionName, db) => {
+  return new Promise(resolve => {
+    db.loadDatabase({}, () => {
+      const collection = db.getCollection(collectionName) || db.addCollection(collectionName)
+      resolve(collection)
+    })
+  })
+}
+
+const app = express()
+
+app.use((err, req, res, next) => {
+  res.status(500).send({
+    message: err.message
+  })
+})
+
+const filefilter = (req, file, callback) => {
+  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+    return callback(new Error('Please upload .jpg/.jpeg/.png/.png files, thanks!'), false)
+  } else (
+    callback(null, true)
+  )
+}
+
+const upload = multer({ dest: 'uploads/', fileFilter: filefilter })
+
+app.post('/avatar', upload.single('avatar'), (req, res, next) => {
+  res.send(req.file)
+})
+
+app.post('/photos/upload', upload.fields([{ name: 'photos', maxCount: 2 }]), async (req, res, next) => {
+  try {
+    const collection = await loadCollection('uploads', db)
+    const result = collection.insert(req.files)
+    db.saveDatabase()
+    res.send(result)
+  } catch(e) {
+    console.log(e)
+  }
+})
+
+app.get('/photos/uploads/:id', async (req, res) => {
+  try {
+    const collection = await loadCollection('uploads', db)
+    const result = collection.get(req.params.id)
+    res.setHeader('Content-Type', result.photos[0].mimetype)
+    fs.createReadStream(result.photos[0].path).pipe(res)
+  } catch(e) {
+    console.log(e)
+  }
+})
+
+
 const payload = {
   name: 'KatherineL',
   admin: true
@@ -43,7 +101,6 @@ jwt.verify(token, publicKey, (error, decoded) => {
 //   }
 // })
 
-const app = express()
 const portNum = process.env.PORT || 3000
 
 app.use(morgan('dev'))

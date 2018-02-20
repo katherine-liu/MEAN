@@ -24,3 +24,29 @@ sign: private key__
 verify: public key__
 1). Generate private key: `ssh-keygen -t rsa -b 2048 -f private.key`
 2). Then generate public key depends on the private.key: `openssl rsa -in private.key -pubout -outform PEM -out public.key`
+
+## Adonis
+`npm i --global @adonisjs/cli`
+Create adonis app:
+`adonis new adonis-study`
+Create adonis blueprint:__
+( On github, there is the repo called katherinecliu/adonis-study-blueprint, which is under user katherinecliu )
+`adonis new adonis-study --blueprint katherinecliu/adonis-study-blueprint`
+Start adonis app:
+`adonis serve --dev`
+
+###### Adonis --- Controller
+`adonis make:controller HelloCtrl`
+###### Adonis --- View
+`adonis make:view hello`
+###### Install sqlite
+`adonis install sqlite3`
+( You can also use npm to install sqlite )
+###### Create table
+`adonis make:migration Post`
+"post" is the name
+
+###### 打开数据库命令交互模式，插入几条数据
+`adonis repl`
+
+`await use('Database').table('posts').insert({title: 'Lunar New Year', content: 'Hello, Happy Lunar New Year. This is a year of God!'})`
